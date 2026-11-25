@@ -24,7 +24,7 @@ final class PolarH10Manager: NSObject {
     private static let restoreIdentifier = "de.jebel.h10sleep.polar-central"
 
     private let bleQueue = DispatchQueue(label: "de.jebel.h10sleep.ble", qos: .userInitiated)
-    private let api: PolarBleApi
+    private var api: PolarBleApi
     private let callbacks: PolarH10Callbacks
 
     // Access synchronized on `bleQueue` or via `stateLock`
