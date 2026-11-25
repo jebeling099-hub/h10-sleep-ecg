@@ -1,0 +1,35 @@
+{
+  "name": "H10 Sleep & ECG",
+  "identifier": "de.jebel.h10sleep.source",
+  "subtitle": "Live-EKG, HRV & Schlafanalyse für Polar H10",
+  "description": "Offizielle SideStore/AltStore-Quelle für H10 Sleep & ECG (iPhone & iPad, ab iOS 17). Ersetze jebeling099-hub in allen URLs durch deinen GitHub-Benutzernamen.",
+  "iconURL": "https://raw.githubusercontent.com/jebeling099-hub/h10-sleep-ecg/main/App/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png",
+  "website": "https://github.com/jebeling099-hub/h10-sleep-ecg",
+  "apps": [
+    {
+      "name": "H10 Sleep & ECG",
+      "bundleIdentifier": "de.jebel.h10sleep",
+      "developerName": "jebeling099-hub",
+      "subtitle": "Live-EKG, HRV, Rhythmus-Erkennung & Schlaf-Score mit Polar H10",
+      "localizedDescription": "Universal-App für iPhone und iPad zur Verbindung mit dem Polar H10 Brustgurt.\n\nFunktionen:\n• Live-EKG (130 Hz) auf EKG-Papier (25 mm/s) mit VES/SVES-Markierung\n• Live-HRV (RMSSD 60 s / 5 min, SDNN, pNN50, RR-Tachogramm & Poincaré-Plot)\n• Kontinuierliche Rhythmus-Analyse im Hintergrund (Brady-/Tachykardie, Pausen, Extrasystolen, AF-Verdacht)\n• Schlafaufzeichnung mit H10-internem RR-Backup, Schlafphasen-Schätzung und Schlaf-Score (0–100)\n\nHinweis: Kein Medizinprodukt und kein Ersatz für ärztliche Diagnostik.",
+      "iconURL": "https://raw.githubusercontent.com/jebeling099-hub/h10-sleep-ecg/main/App/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png",
+      "tintColor": "#E53935",
+      "downloadURL": "https://github.com/jebeling099-hub/h10-sleep-ecg/releases/download/latest/H10Sleep.ipa",
+      "version": "1.0.0",
+      "versionDate": "2026-01-01",
+      "size": 15000000,
+      "versions": [
+        {
+          "version": "1.0.0",
+          "buildVersion": "1",
+          "date": "2026-01-01",
+          "localizedDescription": "Erste Version: Live-EKG (130 Hz), HRV, kontinuierliche Rhythmus-Analyse und Schlaf-Score für Polar H10.",
+          "downloadURL": "https://github.com/jebeling099-hub/h10-sleep-ecg/releases/download/latest/H10Sleep.ipa",
+          "size": 15000000,
+          "minOSVersion": "17.0"
+        }
+      ]
+    }
+  ],
+  "news": []
+}

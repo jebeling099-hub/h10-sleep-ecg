@@ -1,0 +1,125 @@
+name: Build & Test H10 Sleep & ECG
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test H10Analysis
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select latest Xcode 16.x
+        run: |
+          set -euo pipefail
+          XCODE_APP=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -n 1 || true)
+          if [ -n "$XCODE_APP" ]; then
+            echo "Selecting $XCODE_APP"
+            sudo xcode-select -s "$XCODE_APP"
+          else
+            echo "No /Applications/Xcode_16*.app found, using default Xcode"
+          fi
+          swift --version
+
+      - name: Run Swift package tests
+        working-directory: Packages/H10Analysis
+        run: |
+          set -euo pipefail
+          swift test
+
+  build:
+    name: Build Unsigned IPA
+    runs-on: macos-15
+    needs: test
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select latest Xcode 16.x
+        run: |
+          set -euo pipefail
+          XCODE_APP=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -n 1 || true)
+          if [ -n "$XCODE_APP" ]; then
+            echo "Selecting $XCODE_APP"
+            sudo xcode-select -s "$XCODE_APP"
+          else
+            echo "No /Applications/Xcode_16*.app found, using default Xcode"
+          fi
+          xcodebuild -version
+
+      - name: Install XcodeGen
+        run: |
+          set -euo pipefail
+          brew install xcodegen
+          xcodegen --version
+
+      - name: Generate Xcode project
+        run: |
+          set -euo pipefail
+          xcodegen generate
+
+      - name: Build unsigned iOS app
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project H10Sleep.xcodeproj \
+            -scheme H10Sleep \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Package IPA
+        run: |
+          set -euo pipefail
+          APP_PATH="build/Build/Products/Release-iphoneos/H10Sleep.app"
+          if [ ! -d "$APP_PATH" ]; then
+            echo "Expected app bundle not found at $APP_PATH" >&2
+            exit 1
+          fi
+          rm -rf Payload H10Sleep.ipa
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/H10Sleep.app
+          zip -qry H10Sleep.ipa Payload
+          ls -lh H10Sleep.ipa
+          shasum -a 256 H10Sleep.ipa
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: H10Sleep-ipa
+          path: H10Sleep.ipa
+          if-no-files-found: error
+
+      - name: Publish GitHub Release (latest)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          SHA_SHORT="${GITHUB_SHA::7}"
+          NOTES="Automatischer Build von \`main\` (Commit \`${SHA_SHORT}\`). Unsignierte IPA zur Installation über SideStore."
+          if gh release view latest >/dev/null 2>&1; then
+            gh release upload latest H10Sleep.ipa --clobber
+            gh release edit latest --target "$GITHUB_SHA" --title "H10 Sleep & ECG (Latest)" --notes "$NOTES"
+          else
+            gh release create latest H10Sleep.ipa \
+              --target "$GITHUB_SHA" \
+              --title "H10 Sleep & ECG (Latest)" \
+              --notes "$NOTES"
+          fi

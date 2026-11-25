@@ -1,0 +1,10 @@
+.DS_Store
+*.xcodeproj/
+!*.xcodeproj/project.xcworkspace/
+xcuserdata/
+DerivedData/
+build/
+.build/
+.swiftpm/
+*.ipa
+Packages/H10Analysis/.build/
