@@ -11,35 +11,9 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    name: Test H10Analysis
-    runs-on: macos-15
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Select latest Xcode 16.x
-        run: |
-          set -euo pipefail
-          XCODE_APP=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -n 1 || true)
-          if [ -n "$XCODE_APP" ]; then
-            echo "Selecting $XCODE_APP"
-            sudo xcode-select -s "$XCODE_APP"
-          else
-            echo "No /Applications/Xcode_16*.app found, using default Xcode"
-          fi
-          swift --version
-
-      - name: Run Swift package tests
-        working-directory: Packages/H10Analysis
-        run: |
-          set -euo pipefail
-          swift test
-
   build:
-    name: Build Unsigned IPA
+    name: Test & Build Unsigned IPA
     runs-on: macos-15
-    needs: test
     permissions:
       contents: write
     steps:
@@ -56,7 +30,14 @@ jobs:
           else
             echo "No /Applications/Xcode_16*.app found, using default Xcode"
           fi
+          swift --version
           xcodebuild -version
+
+      - name: Run Swift package tests
+        working-directory: Packages/H10Analysis
+        run: |
+          set -euo pipefail
+          swift test
 
       - name: Install XcodeGen
         run: |
